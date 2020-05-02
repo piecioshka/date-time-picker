@@ -11,7 +11,7 @@ import {
     ElementRef,
     OnInit,
     Optional,
-    ViewChild
+    ViewChild,
 } from '@angular/core';
 import { AnimationEvent } from '@angular/animations';
 import { OwlDateTimeIntl } from './date-time-picker-intl.service';
@@ -26,7 +26,7 @@ import {
     LEFT_ARROW,
     RIGHT_ARROW,
     SPACE,
-    UP_ARROW
+    UP_ARROW,
 } from '@angular/cdk/keycodes';
 
 @Component({
@@ -38,7 +38,7 @@ import {
     preserveWhitespaces: false,
     animations: [
         owlDateTimePickerAnimations.transformPicker,
-        owlDateTimePickerAnimations.fadeInPicker
+        owlDateTimePickerAnimations.fadeInPicker,
     ],
     host: {
         '(@transformPicker.done)': 'handleContainerAnimationDone($event)',
@@ -49,7 +49,7 @@ import {
         '[class.owl-dt-container-disabled]': 'owlDTContainerDisabledClass',
         '[attr.id]': 'owlDTContainerId',
         '[@transformPicker]': 'owlDTContainerAnimation',
-    }
+    },
 })
 export class OwlDateTimeContainerComponent<T>
     implements OnInit, AfterContentInit, AfterViewInit {
@@ -118,6 +118,10 @@ export class OwlDateTimeContainerComponent<T>
         return this.pickerIntl.setBtnLabel;
     }
 
+    get resetLabel(): string {
+        return this.pickerIntl.resetBtnLabel;
+    }
+
     /**
      * The range 'from' label
      * */
@@ -152,19 +156,6 @@ export class OwlDateTimeContainerComponent<T>
             : '';
     }
 
-    /**
-     * Cases in which the control buttons show in the picker
-     * 1) picker mode is 'dialog'
-     * 2) picker type is NOT 'calendar' and the picker mode is NOT 'inline'
-     * */
-    get showControlButtons(): boolean {
-        return (
-            this.picker.pickerMode === 'dialog' ||
-            (this.picker.pickerType !== 'calendar' &&
-                this.picker.pickerMode !== 'inline')
-        );
-    }
-
     get containerElm(): HTMLElement {
         return this.elmRef.nativeElement;
     }
@@ -197,11 +188,12 @@ export class OwlDateTimeContainerComponent<T>
         return this.picker.pickerMode === 'inline' ? '' : 'enter';
     }
 
-    constructor( private cdRef: ChangeDetectorRef,
-                  private elmRef: ElementRef,
-                  private pickerIntl: OwlDateTimeIntl,
-                 @Optional() private dateTimeAdapter: DateTimeAdapter<T> ) {
-    }
+    constructor(
+        private cdRef: ChangeDetectorRef,
+        private elmRef: ElementRef,
+        private pickerIntl: OwlDateTimeIntl,
+        @Optional() private dateTimeAdapter: DateTimeAdapter<T>
+    ) {}
 
     public ngOnInit() {}
 
@@ -298,6 +290,7 @@ export class OwlDateTimeContainerComponent<T>
 
     /**
      * Handle click on set button
+     * WARNING: This set only current time
      */
     public onSetClicked(event: any): void {
         if (!this.picker.dateTimeChecker(this.pickerMoment)) {
@@ -306,7 +299,20 @@ export class OwlDateTimeContainerComponent<T>
             return;
         }
 
+        // Set to current day
+        this.picker.select(null);
+
         this.confirmSelected$.next(event);
+        event.preventDefault();
+        return;
+    }
+
+    /**
+     * Handle click on reset button
+     */
+    public onResetClicked(event: any): void {
+        this.confirmSelected$.next(null);
+        this.hidePicker$.next(null);
         event.preventDefault();
         return;
     }

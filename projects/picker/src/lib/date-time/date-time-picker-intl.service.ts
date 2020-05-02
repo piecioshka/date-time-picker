@@ -60,7 +60,9 @@ export class OwlDateTimeIntl {
     cancelBtnLabel = 'Cancel';
 
     /** A label for the set button */
-    setBtnLabel = 'Set';
+    setBtnLabel = 'Set Current Day';
+
+    resetBtnLabel = 'Reset';
 
     /** A label for the range 'from' in picker info */
     rangeFromLabel = 'From';

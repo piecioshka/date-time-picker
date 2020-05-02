@@ -393,7 +393,11 @@ export class OwlDateTimeComponent<T> extends OwlDateTime<T>
         // Listen to picker container's confirmSelectedStream
         this.confirmSelectedStreamSub = this.pickerContainer.confirmSelectedStream.subscribe(
             (event: any) => {
-                this.confirmSelect(event);
+                if (event) {
+                    this.confirmSelect(event);
+                } else {
+                    this.reset();
+                }
             }
         );
     }
@@ -513,8 +517,7 @@ export class OwlDateTimeComponent<T> extends OwlDateTime<T>
      */
     public confirmSelect(event?: any): void {
         if (this.isInSingleMode) {
-            const selected =
-                this.selected || this.startAt || this.dateTimeAdapter.now();
+            const selected = this.selected || this.dateTimeAdapter.now();
             this.confirmSelectedChange.emit(selected);
         } else if (this.isInRangeMode) {
             this.confirmSelectedChange.emit(this.selecteds);
@@ -522,6 +525,10 @@ export class OwlDateTimeComponent<T> extends OwlDateTime<T>
 
         this.close();
         return;
+    }
+
+    public reset(event?: any): void {
+        this.confirmSelectedChange.emit(null);
     }
 
     /**
